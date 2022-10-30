@@ -1,8 +1,8 @@
-package com.qbw.sticklayout
+package com.qbw.lib
 
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.qbw.sticklayout.StickyLayout.StickyListener
+import com.qbw.lib.StickyLayout.StickyListener
 
 internal class StickyGroupHelper {
     var groupType = -1

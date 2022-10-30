@@ -1,4 +1,4 @@
-package com.qbw.sticklayout
+package com.qbw.lib
 
 import android.content.Context
 import android.util.AttributeSet
@@ -16,7 +16,7 @@ class StickyLayout : FrameLayout {
     private var recyclerView: RecyclerView? = null
     private var expandableAdapter: ExpandableAdapter? = null
     private var stickyListener: StickyListener? = null
-    private var stickyGroup = false
+    private var stickyGroup = true
     private val stickyScrollListener = StickyScrollListener()
 
     constructor(context: Context?) : super(context!!) {}
@@ -59,8 +59,7 @@ class StickyLayout : FrameLayout {
     }
 
     private val updateDelayRunn = UpdateDelayRunn(this)
-    fun init(stickyGroup: Boolean) {
-        this.stickyGroup = stickyGroup
+    fun init() {
         recyclerView = getChildAt(0) as RecyclerView
         expandableAdapter = recyclerView!!.adapter as ExpandableAdapter?
         if (expandableAdapter == null) {
@@ -128,7 +127,7 @@ class StickyLayout : FrameLayout {
         if (stickyGroupHelper.groupType != groupViewType) {
             stickyGroupHelper.addGroupViewHolder(
                 this,
-                firstVisibleItemPosition,
+                groupAdapterPosition,
                 groupPosition,
                 groupViewType,
                 groupCount,
@@ -137,7 +136,7 @@ class StickyLayout : FrameLayout {
             )
         } else {
             stickyGroupHelper.bindGroupViewHolder(
-                this, firstVisibleItemPosition,
+                this, groupAdapterPosition,
                 groupPosition,
                 groupViewType,
                 groupCount,
