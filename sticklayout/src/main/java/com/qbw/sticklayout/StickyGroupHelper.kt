@@ -39,7 +39,7 @@ internal class StickyGroupHelper {
             params.width = stickyLayout.width
         }
         stickyLayout.addView(groupViewHolder.itemView, params)
-        stickyListener.onBindStickyGroupViewHolder(adapterPos, this.groupPos, this.groupViewHolder)
+        stickyListener.onBindStickyGroupViewHolder(adapterPos, this.groupPos, this.groupViewHolder!!)
     }
 
     fun removeGroupViewHolder(stickyLayout: StickyLayout) {
@@ -69,7 +69,7 @@ internal class StickyGroupHelper {
         this.groupPos = groupPos
         this.groupType = groupType
         mGroupCount = groupCount
-        stickyListener.onBindStickyGroupViewHolder(adapPos, this.groupPos, groupViewHolder)
+        stickyListener.onBindStickyGroupViewHolder(adapPos, this.groupPos, groupViewHolder!!)
     }
 
     private fun checkResetItemViewSize(
