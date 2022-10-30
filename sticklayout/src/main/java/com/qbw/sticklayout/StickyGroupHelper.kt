@@ -2,17 +2,13 @@ package com.qbw.sticklayout
 
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.qbw.sticklayout.StickyLayout
 import com.qbw.sticklayout.StickyLayout.StickyListener
 
 internal class StickyGroupHelper {
     var groupType = -1
-        private set
-    private var mGroupCount = 0
-    var groupPos = RecyclerView.NO_POSITION
-        private set
-    var groupViewHolder: RecyclerView.ViewHolder? = null
-        private set
+    private var groupCount = 0
+    private var groupPos = RecyclerView.NO_POSITION
+    private var groupViewHolder: RecyclerView.ViewHolder? = null
 
     fun addGroupViewHolder(
         stickyLayout: StickyLayout,
@@ -26,7 +22,7 @@ internal class StickyGroupHelper {
         removeGroupViewHolder(stickyLayout)
         this.groupPos = groupPos
         this.groupType = groupType
-        mGroupCount = groupCount
+        this.groupCount = groupCount
         this.groupViewHolder = groupViewHolder
         val params = groupViewHolder!!.itemView.layoutParams as FrameLayout.LayoutParams
         params.height = stickyListener.getStickyGroupViewHolderHeight(groupType)
@@ -46,7 +42,7 @@ internal class StickyGroupHelper {
         if (groupViewHolder != null) stickyLayout.removeView(groupViewHolder!!.itemView)
         groupPos = RecyclerView.NO_POSITION
         groupType = -1
-        mGroupCount = 0
+        groupCount = 0
         groupViewHolder = null
     }
 
@@ -62,13 +58,13 @@ internal class StickyGroupHelper {
             return
         } else {
             checkResetItemViewSize(stickyLayout, groupPos, groupType, stickyListener)
-            if (this.groupPos == groupPos && mGroupCount == groupCount) {
+            if (this.groupPos == groupPos && this.groupCount == groupCount) {
                 return
             }
         }
         this.groupPos = groupPos
         this.groupType = groupType
-        mGroupCount = groupCount
+        this.groupCount = groupCount
         stickyListener.onBindStickyGroupViewHolder(adapPos, this.groupPos, groupViewHolder!!)
     }
 

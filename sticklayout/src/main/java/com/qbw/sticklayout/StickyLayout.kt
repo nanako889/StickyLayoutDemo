@@ -10,14 +10,14 @@ import com.qbw.expandableadapterx.ExpandableAdapter
 import java.lang.ref.WeakReference
 
 class StickyLayout : FrameLayout {
-    private val mStickyGroupHelper = StickyGroupHelper()
-    private var mStickyGroupY = -1
+    private val stickyGroupHelper = StickyGroupHelper()
+    private var stickyGroupY = -1
     var updateDelay = 80 //5帧
-    private var mRecyclerView: RecyclerView? = null
-    private var mExpandableAdapter: ExpandableAdapter? = null
-    private var mStickyListener: StickyListener? = null
-    private var mStickyGroup = false
-    private val mStickyScrollListener = StickyScrollListener()
+    private var recyclerView: RecyclerView? = null
+    private var expandableAdapter: ExpandableAdapter? = null
+    private var stickyListener: StickyListener? = null
+    private var stickyGroup = false
+    private val stickyScrollListener = StickyScrollListener()
 
     constructor(context: Context?) : super(context!!) {}
     constructor(context: Context?, attrs: AttributeSet?) : super(
@@ -36,116 +36,116 @@ class StickyLayout : FrameLayout {
             val childView = getChildAt(1)
             childView.layout(
                 childView.left,
-                mStickyGroupY,
+                stickyGroupY,
                 childView.right,
-                childView.measuredHeight + mStickyGroupY
+                childView.measuredHeight + stickyGroupY
             )
-            removeCallbacks(mUpdateDelayRunn)
-            postDelayed(mUpdateDelayRunn, updateDelay.toLong())
+            removeCallbacks(updateDelayRunn)
+            postDelayed(updateDelayRunn, updateDelay.toLong())
         }
     }
 
     private class UpdateDelayRunn(stickyLayout: StickyLayout) : Runnable {
-        private val mWRStickyLayout: WeakReference<StickyLayout>
+        private val wrStickyLayout: WeakReference<StickyLayout>
 
         init {
-            mWRStickyLayout = WeakReference(stickyLayout)
+            wrStickyLayout = WeakReference(stickyLayout)
         }
 
         override fun run() {
-            val sl = mWRStickyLayout.get() ?: return
+            val sl = wrStickyLayout.get() ?: return
             sl.update()
         }
     }
 
-    private val mUpdateDelayRunn = UpdateDelayRunn(this)
+    private val updateDelayRunn = UpdateDelayRunn(this)
     fun init(stickyGroup: Boolean) {
-        mStickyGroup = stickyGroup
-        mRecyclerView = getChildAt(0) as RecyclerView
-        mExpandableAdapter = mRecyclerView!!.adapter as ExpandableAdapter?
-        if (mExpandableAdapter == null) {
+        this.stickyGroup = stickyGroup
+        recyclerView = getChildAt(0) as RecyclerView
+        expandableAdapter = recyclerView!!.adapter as ExpandableAdapter?
+        if (expandableAdapter == null) {
             throw RuntimeException("please set RecyclerView's Adapter first!!!")
-        } else if (mExpandableAdapter !is StickyListener) {
+        } else if (expandableAdapter !is StickyListener) {
             throw RuntimeException("Adapter must implement StickyListener!!!")
         }
-        mStickyListener = mExpandableAdapter as StickyListener?
-        mRecyclerView!!.addOnScrollListener(mStickyScrollListener)
+        stickyListener = expandableAdapter as StickyListener?
+        recyclerView!!.addOnScrollListener(stickyScrollListener)
     }
 
     private fun update(): Boolean {
-        if (!mStickyGroup) {
-            mStickyGroupY = 0
+        if (!stickyGroup) {
+            stickyGroupY = 0
             return false
         }
-        val firstVisibleItemPosition = findFirstVisibleItemPosition(mRecyclerView)
+        val firstVisibleItemPosition = findFirstVisibleItemPosition(recyclerView)
         if (RecyclerView.NO_POSITION == firstVisibleItemPosition) {
             return false
         }
         var groupPosition = -1
         var groupViewType = -1
         var groupAdapterPosition = -1
-        if (mStickyListener!!.isPostionGroup(firstVisibleItemPosition)) {
+        if (stickyListener!!.isPostionGroup(firstVisibleItemPosition)) {
             groupAdapterPosition = firstVisibleItemPosition
-            groupPosition = mExpandableAdapter!!.getGroupPosition(firstVisibleItemPosition)
-            groupViewType = mExpandableAdapter!!.getItemViewType(firstVisibleItemPosition)
-        } else if (mStickyListener!!.isPostionGroupChild(firstVisibleItemPosition)) {
-            val poss = mExpandableAdapter!!.getGroupChildPosition(firstVisibleItemPosition)
+            groupPosition = expandableAdapter!!.getGroupPosition(firstVisibleItemPosition)
+            groupViewType = expandableAdapter!!.getItemViewType(firstVisibleItemPosition)
+        } else if (stickyListener!!.isPostionGroupChild(firstVisibleItemPosition)) {
+            val poss = expandableAdapter!!.getGroupChildPosition(firstVisibleItemPosition)
             groupAdapterPosition = firstVisibleItemPosition - (poss[1] + 1)
             groupPosition = poss[0]
-            groupViewType = mExpandableAdapter!!.getItemViewType(groupAdapterPosition)
+            groupViewType = expandableAdapter!!.getItemViewType(groupAdapterPosition)
         }
         if (groupPosition == -1 || groupViewType == -1 || groupAdapterPosition == -1) {
-            mStickyGroupHelper.removeGroupViewHolder(this)
-            mStickyGroupY = 0
+            stickyGroupHelper.removeGroupViewHolder(this)
+            stickyGroupY = 0
             return false
         }
-        val groupCount = mExpandableAdapter!!.groupCount
+        val groupCount = expandableAdapter!!.groupCount
         val nextGroupPosition = groupPosition + 1
         var nextAdapterPosition = -1
         var nextVh: RecyclerView.ViewHolder? = null //下一个需要判断是否相交的holder
         if (nextGroupPosition < groupCount) { //group下面还有group
-            nextAdapterPosition = mExpandableAdapter!!.convertGroupPosition(nextGroupPosition)
+            nextAdapterPosition = expandableAdapter!!.convertGroupPosition(nextGroupPosition)
         } else {
-            val fcount = mExpandableAdapter!!.footerCount
+            val fcount = expandableAdapter!!.footerCount
             if (fcount > 0) { //group下面还有footer
-                nextAdapterPosition = mExpandableAdapter!!.convertFooterPosition(0)
+                nextAdapterPosition = expandableAdapter!!.convertFooterPosition(0)
             }
         }
         if (nextAdapterPosition != -1) {
-            nextVh = mRecyclerView!!.findViewHolderForAdapterPosition(nextAdapterPosition)
+            nextVh = recyclerView!!.findViewHolderForAdapterPosition(nextAdapterPosition)
         }
-        mStickyGroupY = if (nextVh == null) {
+        stickyGroupY = if (nextVh == null) {
             0
         } else {
             val nextHolderTop = nextVh.itemView.top
-            val groupHolderHeight = mStickyListener!!.getStickyGroupViewHolderHeight(groupViewType)
+            val groupHolderHeight = stickyListener!!.getStickyGroupViewHolderHeight(groupViewType)
             if (nextHolderTop >= groupHolderHeight) {
                 0
             } else {
                 nextHolderTop - groupHolderHeight
             }
         }
-        if (mStickyGroupHelper.groupType != groupViewType) {
-            mStickyGroupHelper.addGroupViewHolder(
+        if (stickyGroupHelper.groupType != groupViewType) {
+            stickyGroupHelper.addGroupViewHolder(
                 this,
                 firstVisibleItemPosition,
                 groupPosition,
                 groupViewType,
                 groupCount,
-                mStickyListener!!.onCreateStickyGroupViewHolder(groupViewType, this),
-                mStickyListener!!
+                stickyListener!!.onCreateStickyGroupViewHolder(groupViewType, this),
+                stickyListener!!
             )
         } else {
-            mStickyGroupHelper.bindGroupViewHolder(
+            stickyGroupHelper.bindGroupViewHolder(
                 this, firstVisibleItemPosition,
                 groupPosition,
                 groupViewType,
                 groupCount,
-                mStickyListener!!
+                stickyListener!!
             )
         }
         if (childCount > 1) {
-            if (getChildAt(1).top == mStickyGroupY) {
+            if (getChildAt(1).top == stickyGroupY) {
                 return false
             }
             requestLayout()
@@ -157,13 +157,13 @@ class StickyLayout : FrameLayout {
     private inner class StickyScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             if (update()) {
-                removeCallbacks(mUpdateDelayRunn)
+                removeCallbacks(updateDelayRunn)
             }
         }
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (update()) {
-                removeCallbacks(mUpdateDelayRunn)
+                removeCallbacks(updateDelayRunn)
             }
         }
     }
